@@ -3,10 +3,22 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-const redis = {
-  host: process.env.REDIS_URL?.split('@')[1]?.split(':')[0] || 'localhost',
-  port: parseInt(process.env.REDIS_URL?.split(':')?.pop() || '6379'),
+// Parse Redis URL: redis://user:pass@host:port
+const parseRedisUrl = (url: string) => {
+  try {
+    const redisUrl = new URL(url);
+    const host = redisUrl.hostname;
+    const port = parseInt(redisUrl.port);
+    const password = redisUrl.password;
+    return { host, port, password };
+  } catch {
+    return { host: 'localhost', port: 6379 };
+  }
 };
+
+const redis = process.env.REDIS_URL 
+  ? parseRedisUrl(process.env.REDIS_URL)
+  : { host: 'localhost', port: 6379 };
 
 export const scanQueue = new Queue('scan', { connection: redis });
 

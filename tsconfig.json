@@ -20,10 +20,5 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true
-  },
-  "references": [
-    { "path": "./apps/web" },
-    { "path": "./apps/worker" },
-    { "path": "./packages/shared" }
-  ]
+  }
 }
