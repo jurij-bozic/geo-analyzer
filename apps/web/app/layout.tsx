@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import '../globals.css';
+import { Providers } from './providers';
 
 export const metadata: Metadata = {
   title: 'GEO Analyzer',
@@ -13,7 +14,9 @@ export default function RootLayout({
 }): JSX.Element {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
