@@ -7,12 +7,13 @@ app.use(express.json());
 const PORT = process.env.PORT || 3001;
 
 // POST /jobs/scan - Enqueue a new scan job
-app.post('/jobs/scan', async (req, res) => {
+app.post('/jobs/scan', async (req, res): Promise<void> => {
   try {
     const { scanId, brandName, url } = req.body;
 
     if (!scanId || !brandName || !url) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      res.status(400).json({ error: 'Missing required fields' });
+      return;
     }
 
     // Enqueue the crawl job
@@ -30,7 +31,7 @@ app.post('/jobs/scan', async (req, res) => {
 });
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
