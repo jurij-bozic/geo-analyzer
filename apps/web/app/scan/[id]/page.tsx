@@ -1,6 +1,7 @@
 'use client';
 
 import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import ky from 'ky';
 import { ScanResult, StatusResponse } from '@geo-analyzer/shared';
@@ -28,25 +29,33 @@ const statusColors: Record<string, string> = {
 export default function ScanResultsPage() {
   const params = useParams();
   const scanId = params.id as string;
+  const [isComplete, setIsComplete] = useState(false);
 
-  // Poll status endpoint every 2 seconds
+  // Poll status endpoint every 2 seconds (stops when complete)
   const {
     data: statusData,
     isLoading: statusLoading,
     error: statusError,
-  } = useQuery({
+  } = useQuery<StatusResponse>({
     queryKey: ['scan-status', scanId],
     queryFn: async () => ky.get(`/api/scan/${scanId}/status`).json<StatusResponse>(),
-    refetchInterval: 2000,
+    refetchInterval: isComplete ? false : 2000,
     enabled: !!scanId,
   });
+
+  // Stop polling when complete
+  useEffect(() => {
+    if (statusData?.status === 'complete') {
+      setIsComplete(true);
+    }
+  }, [statusData?.status]);
 
   // Fetch full results once complete
   const {
     data: resultsData,
     isLoading: resultsLoading,
     error: resultsError,
-  } = useQuery({
+  } = useQuery<ScanResult>({
     queryKey: ['scan-results', scanId],
     queryFn: async () => ky.get(`/api/scan/${scanId}`).json<ScanResult>(),
     enabled: !!scanId && statusData?.status === 'complete',
