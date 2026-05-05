@@ -131,7 +131,9 @@ export default function ScanResultsPage() {
 
   const currentStatus = (statusData?.status || 'pending') as string;
   const currentIndex = statusOrder.indexOf(currentStatus as any);
-  const progressPercent = ((currentIndex + 1) / statusOrder.length) * 100;
+  const progressPercent = (currentStatus === 'complete' || currentStatus === 'failed') 
+    ? 100 
+    : ((currentIndex + 1) / statusOrder.length) * 100;
 
   if (statusError && statusError.toString().includes('404')) {
     return (
@@ -166,7 +168,7 @@ export default function ScanResultsPage() {
           <h1 className="text-4xl font-bold text-white mb-2 tracking-tight">
             {resultsData?.brandName || 'Scan Results'}
           </h1>
-          <p className="text-slate-300 text-lg">{resultsData?.url || scanId}</p>
+          <p className="text-slate-300 text-lg">{resultsData?.url || 'Analyzing. . .'}</p>
         </div>
 
         {/* Status Progress */}
@@ -194,30 +196,36 @@ export default function ScanResultsPage() {
           </div>
 
           {/* Status steps */}
-          <div className="grid grid-cols-6 gap-3">
-            {statusOrder.map((status) => {
-              const idx = statusOrder.indexOf(status);
-              const isComplete = currentIndex > idx;
-              const isCurrent = currentIndex === idx;
-              return (
-                <div key={status} className="text-center">
-                  <div
-                    className={`w-10 h-10 rounded-full mx-auto mb-2 flex items-center justify-center font-bold transition-all duration-300 ${
-                      isComplete
-                        ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg'
-                        : isCurrent
-                        ? 'bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-lg ring-2 ring-indigo-300/50'
-                        : 'bg-slate-700 text-slate-400'
-                    }`}
-                  >
-                    {isComplete ? '✓' : idx + 1}
+          <div className="flex justify-center">
+            <div className="grid grid-cols-6 gap-3">
+              {statusOrder.map((status) => {
+                // Hide 'complete' if failed, hide 'failed' if not failed
+                if (status === 'complete' && currentStatus === 'failed') return null;
+                if (status === 'failed' && currentStatus !== 'failed') return null;
+
+                const idx = statusOrder.indexOf(status);
+                const isComplete = currentIndex > idx;
+                const isCurrent = currentIndex === idx;
+                return (
+                  <div key={status} className="text-center">
+                    <div
+                      className={`w-10 h-10 rounded-full mx-auto mb-2 flex items-center justify-center font-bold transition-all duration-300 ${
+                        isComplete
+                          ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg'
+                          : isCurrent
+                          ? 'bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-lg ring-2 ring-indigo-300/50 animate-pulse'
+                          : 'bg-slate-700 text-slate-400'
+                      }`}
+                    >
+                      {isComplete ? '✓' : idx + 1}
+                    </div>
+                    <p className={`text-xs font-medium capitalize transition-colors duration-300 ${
+                      isComplete || isCurrent ? 'text-white' : 'text-slate-400'
+                    }`}>{status}</p>
                   </div>
-                  <p className={`text-xs font-medium capitalize transition-colors duration-300 ${
-                    isComplete || isCurrent ? 'text-white' : 'text-slate-400'
-                  }`}>{status}</p>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
 
