@@ -95,14 +95,19 @@ const worker = new Worker(
           scan.crawledTitle || '',
           scan.crawledMeta || ''
         );
-        console.log(`[llm-query] Inferred niche: ${niche}`);
+        console.log(`[llm-query] Inferred niche: "${niche}" from title: "${scan.crawledTitle}" and meta: "${scan.crawledMeta}"`);
+
+        // Validate niche is reasonable
+        if (niche.length > 20 || niche.includes(' ') || niche.includes('\n')) {
+          console.warn(`[llm-query] WARNING: Inferred niche looks suspicious: "${niche}". This may cause malformed prompts.`);
+        }
 
         // Get 7 prompts for this niche and brand
         const prompts = await getPrompts(brandName, niche);
-        console.log(`[llm-query] Generated 7 prompts, will make 14 LLM calls`);
+        console.log(`[llm-query] Generated prompts:`, prompts.slice(0, 2).map((p, i) => `\n  ${i + 1}. ${p}`));
 
         // Call LLM APIs: 7 prompts × 2 models
-        const models = [MODELS.GPT4O, MODELS.CLAUDE_SONNET];
+        const models = [MODELS.GPT45_MINI, MODELS.CLAUDE_SONNET];
         const llmCalls = [];
 
         for (const prompt of prompts) {
@@ -123,6 +128,23 @@ const worker = new Worker(
                   });
 
                   const responseText = response.choices[0]?.message?.content || '';
+
+                  // Log response to catch issues
+                  if (responseText.length > 200) {
+                    console.log(`[llm-query] ${model} response preview: ${responseText.substring(0, 200)}...`);
+                  } else {
+                    console.log(`[llm-query] ${model} response: ${responseText}`);
+                  }
+
+                  // Check if response looks malformed (contains too many prompt-like patterns)
+                  const promptKeywords = ['please', 'provide', 'help', 'describe'];
+                  const suspiciousCount = promptKeywords.filter(kw => 
+                    responseText.toLowerCase().includes(kw)
+                  ).length;
+                  
+                  if (suspiciousCount > 2 && responseText.length < 300) {
+                    console.warn(`[llm-query] WARNING: Response from ${model} looks suspicious (${suspiciousCount} prompt keywords): "${responseText}"`);
+                  }
 
                   // Check if brand is mentioned
                   const brandMentioned = responseText

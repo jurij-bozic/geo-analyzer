@@ -2,14 +2,21 @@ import { openrouter, MODELS } from './openrouter';
 
 export async function inferNiche(title: string, metaDescription: string): Promise<string> {
   try {
-    const prompt = `Based on this page title and description, return a single word describing the industry or niche. Return only the word, nothing else.
+    // Sanitize inputs to prevent injection
+    const sanitizedTitle = title.replace(/[\n\r]/g, ' ').substring(0, 200);
+    const sanitizedDescription = metaDescription.replace(/[\n\r]/g, ' ').substring(0, 300);
 
-Title: ${title}
-Description: ${metaDescription}`;
+    const prompt = `You are a niche classification system. Analyze this page title and description, then respond with ONLY a single lowercase word (2-15 characters) that describes the primary industry or niche. Do not include explanations, articles, or punctuation.
+
+Title: ${sanitizedTitle}
+Description: ${sanitizedDescription}
+
+Respond with only ONE word:`;
 
     const response = await openrouter.chat.completions.create({
       model: MODELS.GPT4O_MINI,
-      max_tokens: 10,
+      max_tokens: 5,
+      temperature: 0,
       messages: [
         {
           role: 'user',
@@ -18,8 +25,17 @@ Description: ${metaDescription}`;
       ],
     });
 
-    const niche = response.choices[0]?.message?.content?.trim() || 'technology';
-    return niche || 'technology';
+    let niche = response.choices[0]?.message?.content?.trim() || 'technology';
+    
+    // Validate that niche is a single word (letters only, 2-15 chars)
+    const isValidNiche = /^[a-z]{2,15}$/.test(niche.toLowerCase());
+    
+    if (!isValidNiche) {
+      console.warn(`Invalid niche returned: "${niche}", falling back to "technology"`);
+      niche = 'technology';
+    }
+    
+    return niche.toLowerCase();
   } catch (error) {
     console.error('Error inferring niche:', error);
     return 'technology'; // Fallback niche
