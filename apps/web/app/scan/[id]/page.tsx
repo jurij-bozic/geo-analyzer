@@ -6,6 +6,69 @@ import { useQuery } from '@tanstack/react-query';
 import ky from 'ky';
 import { ScanResult, StatusResponse } from '@geo-analyzer/shared';
 
+function LLMResultCard({ result, index }: { result: any; index: number }): JSX.Element {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const responsePreview = result.response.substring(0, 150) + (result.response.length > 150 ? '...' : '');
+
+  return (
+    <div className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition">
+      <div className="flex items-start gap-3">
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xs font-semibold text-gray-600 uppercase bg-gray-100 px-2 py-1 rounded">
+              {result.model.replace('openai/', '').replace('anthropic/', '')}
+            </span>
+            {result.brandMentioned ? (
+              <span className="text-xs font-semibold text-green-700 bg-green-100 px-2 py-1 rounded">
+                ✓ Brand Mentioned
+              </span>
+            ) : (
+              <span className="text-xs font-semibold text-red-700 bg-red-100 px-2 py-1 rounded">
+                ✗ Brand Not Mentioned
+              </span>
+            )}
+          </div>
+          <p className="text-sm text-gray-600 mb-3">{result.prompt}</p>
+          <p className="text-sm text-gray-700 mb-3 line-clamp-2">{responsePreview}</p>
+          {result.competitorsMentioned.length > 0 && (
+            <div className="mb-3">
+              <p className="text-xs text-gray-600 mb-1">Competitors mentioned:</p>
+              <div className="flex flex-wrap gap-1">
+                {result.competitorsMentioned.map((comp: string, idx: number) => (
+                  <span key={idx} className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded border border-blue-200">
+                    {comp}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="text-gray-600 hover:text-gray-900 transition mt-1"
+        >
+          <svg className={`w-5 h-5 transform transition ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+        </button>
+      </div>
+
+      {isExpanded && (
+        <div className="mt-4 pt-4 border-t border-gray-200 space-y-3">
+          <div>
+            <p className="text-xs font-semibold text-gray-600 uppercase mb-1">Prompt</p>
+            <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded">{result.prompt}</p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-gray-600 uppercase mb-1">Response</p>
+            <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded max-h-64 overflow-y-auto whitespace-pre-wrap">{result.response}</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 const statusOrder = ['pending', 'crawling', 'querying', 'analyzing', 'complete', 'failed'] as const;
 
 const statusLabels: Record<string, string> = {
@@ -202,19 +265,20 @@ export default function ScanResultsPage() {
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">
                   LLM Analysis ({resultsData.llmResults.length} queries)
                 </h2>
-                <div className="space-y-2 text-sm">
-                  <p className="text-gray-600">
-                    Brand mentioned in:{' '}
-                    <span className="font-semibold text-gray-900">
+                <div className="mb-4 p-3 bg-blue-50 rounded border border-blue-200">
+                  <p className="text-sm text-blue-900">
+                    Brand mentioned in{' '}
+                    <span className="font-semibold">
                       {resultsData.llmResults.filter((r) => r.brandMentioned).length}/
                       {resultsData.llmResults.length}
                     </span>
+                    {' '}responses
                   </p>
-                  {resultsData.llmResults.some((r) => r.competitorsMentioned?.length) && (
-                    <p className="text-gray-600">
-                      Competitors mentioned: See details below
-                    </p>
-                  )}
+                </div>
+                <div className="space-y-3">
+                  {resultsData.llmResults.map((result, idx) => (
+                    <LLMResultCard key={idx} result={result} index={idx} />
+                  ))}
                 </div>
               </div>
             )}
