@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import express from 'express';
 import { Job } from 'bullmq';
 import { scanQueue } from './queues/scanQueue';
