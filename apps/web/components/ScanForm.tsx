@@ -32,9 +32,9 @@ export function ScanForm(): JSX.Element {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-md space-y-4">
+    <form onSubmit={handleSubmit} className="w-full space-y-4">
       <div>
-        <label htmlFor="brandName" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="brandName" className="block text-sm font-bold text-white mb-2">
           Brand Name
         </label>
         <input
@@ -44,13 +44,13 @@ export function ScanForm(): JSX.Element {
           value={brandName}
           onChange={(e) => setBrandName(e.target.value)}
           required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white placeholder-slate-400 transition-all duration-300 backdrop-blur-sm"
           disabled={isLoading}
         />
       </div>
 
       <div>
-        <label htmlFor="url" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="url" className="block text-sm font-bold text-white mb-2">
           Website URL
         </label>
         <input
@@ -60,13 +60,13 @@ export function ScanForm(): JSX.Element {
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white placeholder-slate-400 transition-all duration-300 backdrop-blur-sm"
           disabled={isLoading}
         />
       </div>
 
       {error && (
-        <div className="px-4 py-2 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+        <div className="px-4 py-3 bg-rose-500/20 border border-rose-400/50 rounded-lg text-rose-200 text-sm">
           {error}
         </div>
       )}
@@ -74,7 +74,7 @@ export function ScanForm(): JSX.Element {
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+        className="w-full px-6 py-3 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white font-bold rounded-lg hover:from-indigo-600 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
       >
         {isLoading && (
           <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -86,7 +86,7 @@ export function ScanForm(): JSX.Element {
             />
           </svg>
         )}
-        {isLoading ? 'Analyzing...' : 'Analyze my brand'}
+        {isLoading ? 'Analyzing your brand...' : '🚀 Analyze my brand'}
       </button>
     </form>
   );
