@@ -107,7 +107,7 @@ const worker = new Worker(
         console.log(`[llm-query] Generated prompts:`, prompts.slice(0, 2).map((p, i) => `\n  ${i + 1}. ${p}`));
 
         // Call LLM APIs: 7 prompts × 2 models
-        const models = [MODELS.GPT45_MINI, MODELS.CLAUDE_SONNET];
+        const models = [MODELS.GPT54_MINI, MODELS.CLAUDE_SONNET];
         const llmCalls = [];
 
         for (const prompt of prompts) {

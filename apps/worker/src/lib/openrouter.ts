@@ -13,6 +13,6 @@ export const openrouter = new OpenAI({
 export const MODELS = {
   GPT4O: 'openai/gpt-4o',
   GPT4O_MINI: 'openai/gpt-4o-mini',
-  GPT45_MINI: 'openai/gpt-5.4-mini',
+  GPT54_MINI: 'openai/gpt-5.4-mini',
   CLAUDE_SONNET: 'anthropic/claude-3-5-sonnet',
 } as const;
