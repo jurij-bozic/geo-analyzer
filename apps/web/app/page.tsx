@@ -14,7 +14,7 @@ export default function Home(): JSX.Element {
             <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">your brand?</span>
           </h1>
           <p className="text-lg text-slate-300 leading-relaxed max-w-md mx-auto">
-            Find out if ChatGPT and Claude recommend you — and get actionable steps to improve your visibility.
+            Find out if ChatGPT and Claude recommend you, and get actionable steps to improve your visibility.
           </p>
         </div>
 
@@ -25,7 +25,7 @@ export default function Home(): JSX.Element {
 
         {/* Footer Info */}
         <div className="text-center text-sm text-slate-400 space-y-2">
-          <p>✨ Powered by GPT-4o & Claude analysis</p>
+          <p>✨ Powered by GPT-5 & Claude analysis</p>
           <p>🚀 Get results in under 2 minutes</p>
         </div>
       </div>
