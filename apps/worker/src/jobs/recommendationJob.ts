@@ -27,7 +27,7 @@ export async function recommendationJob(scanId: string): Promise<void> {
     // Aggregate competitor mentions
     const competitorCounts: Record<string, number> = {};
     scan.llmResults.forEach((result) => {
-      result.competitorsMentioned.forEach((competitor) => {
+      result.competitorsMentioned.forEach((competitor: string) => {
         competitorCounts[competitor] = (competitorCounts[competitor] || 0) + 1;
       });
     });
