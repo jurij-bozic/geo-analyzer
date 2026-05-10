@@ -226,7 +226,7 @@ const worker = new Worker(
 
         // Calculate statistics
         const brandMentionCount = scan.llmResults.filter(
-          (r) => r.brandMentioned
+          (r: any) => r.brandMentioned
         ).length;
         const totalResults = scan.llmResults.length;
 
@@ -356,7 +356,7 @@ Provide exactly 5 recommendations in JSON format like this (no other text):
       await prisma.scan.update({
         where: { id: scanId },
         data: { status: 'failed' },
-      }).catch((err) => console.error('Failed to update scan status:', err));
+      }).catch((err: any) => console.error('Failed to update scan status:', err));
       throw error;
     }
   },

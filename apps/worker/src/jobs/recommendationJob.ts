@@ -22,11 +22,11 @@ export async function recommendationJob(scanId: string): Promise<void> {
     }
 
     // Count how many results mentioned the brand
-    const mentionCount = scan.llmResults.filter((r) => r.brandMentioned).length;
+    const mentionCount = scan.llmResults.filter((r: any) => r.brandMentioned).length;
 
     // Aggregate competitor mentions
     const competitorCounts: Record<string, number> = {};
-    scan.llmResults.forEach((result) => {
+    scan.llmResults.forEach((result: any) => {
       result.competitorsMentioned.forEach((competitor: string) => {
         competitorCounts[competitor] = (competitorCounts[competitor] || 0) + 1;
       });
