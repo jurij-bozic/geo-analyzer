@@ -104,7 +104,7 @@ const worker = new Worker(
 
         // Get 7 prompts for this niche and brand
         const prompts = await getPrompts(brandName, niche);
-        console.log(`[llm-query] Generated prompts:`, prompts.slice(0, 2).map((p, i) => `\n  ${i + 1}. ${p}`));
+        console.log(`[llm-query] Generated prompts:`, prompts.slice(0, 2).map((p: string, i: number) => `\n  ${i + 1}. ${p}`));
 
         // Call LLM APIs: 7 prompts × 2 models
         const models = [MODELS.GPT54_MINI, MODELS.CLAUDE_SONNET];
@@ -138,7 +138,7 @@ const worker = new Worker(
 
                   // Check if response looks malformed (contains too many prompt-like patterns)
                   const promptKeywords = ['please', 'provide', 'help', 'describe'];
-                  const suspiciousCount = promptKeywords.filter(kw => 
+                  const suspiciousCount = promptKeywords.filter((kw: string) => 
                     responseText.toLowerCase().includes(kw)
                   ).length;
                   
@@ -163,9 +163,9 @@ const worker = new Worker(
                     while ((match = pattern.exec(responseText)) !== null) {
                       const mentions = match[1]
                         .split(/[,;]/)
-                        .map((s) => s.trim())
-                        .filter((s) => s.length > 0 && s.length < 50)
-                        .filter((s) => /^[A-Z]/.test(s)); // Only capitalized words
+                        .map((s: string) => s.trim())
+                        .filter((s: string) => s.length > 0 && s.length < 50)
+                        .filter((s: string) => /^[A-Z]/.test(s)); // Only capitalized words
 
                       competitorsMentioned.push(...mentions);
                     }
@@ -243,9 +243,9 @@ const worker = new Worker(
 
         // Get top 5 competitors
         const topCompetitors = Array.from(competitorFreq.entries())
-          .sort((a, b) => b[1] - a[1])
+          .sort((a: [string, number], b: [string, number]) => b[1] - a[1])
           .slice(0, 5)
-          .map(([name]) => name)
+          .map(([name]: [string, number]) => name)
           .join(', ');
 
         // Create prompt for recommendation generation
