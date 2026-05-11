@@ -1,6 +1,6 @@
 export type ScanStatus = 'pending' | 'crawling' | 'querying' | 'analyzing' | 'complete' | 'failed';
 
-export type LLMModel = 'openai/gpt-4o' | 'anthropic/claude-3-5-sonnet';
+export type LLMModel = 'openai/gpt-4o' | 'openai/gpt-5.4-mini' | 'anthropic/claude-3-5-sonnet';
 
 export interface ScanInput {
   brandName: string;

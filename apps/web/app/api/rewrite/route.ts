@@ -1,15 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
-
-const openrouter = new OpenAI({
-  baseURL: 'https://openrouter.ai/api/v1',
-  apiKey: process.env.OPENROUTER_API_KEY,
-  defaultHeaders: {
-    'HTTP-Referer': 'https://geo-analyzer.vercel.app',
-    'X-Title': 'GEO Analyzer',
-  },
-  timeout: 30 * 1000, // 30 seconds
-});
+import ky from 'ky';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
@@ -23,21 +13,28 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Call GPT-4o to rewrite content
-    const response = await openrouter.chat.completions.create({
-      model: 'openai/gpt-4o',
-      messages: [
-        {
-          role: 'system',
-          content:
-            'You are a GEO (Generative Engine Optimization) expert. Rewrite the following web page content so that it is more likely to be cited by AI language models like ChatGPT and Claude. Make it authoritative, structured, and fact-dense. Use clear headings, include specific claims, and answer common questions directly. Return only the rewritten content.',
-        },
-        {
-          role: 'user',
-          content: text,
-        },
-      ],
-    });
+    // Call OpenRouter API directly
+    const response = await ky.post('https://openrouter.ai/api/v1/chat/completions', {
+      json: {
+        model: 'openai/gpt-5.4-mini',
+        messages: [
+          {
+            role: 'system',
+            content:
+              'You are a GEO (Generative Engine Optimization) expert. Rewrite the following web page content so that it is more likely to be cited by AI language models like ChatGPT and Claude. Make it authoritative, structured, and fact-dense. Use clear headings, include specific claims, and answer common questions directly. Return only the rewritten content.',
+          },
+          {
+            role: 'user',
+            content: text,
+          },
+        ],
+      },
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        'HTTP-Referer': 'https://geo-analyzer.vercel.app',
+        'X-Title': 'GEO Analyzer',
+      },
+    }).json<{ choices: Array<{ message: { content: string } }> }>();
 
     const rewritten = response.choices[0]?.message?.content || '';
 
