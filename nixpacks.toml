@@ -1,0 +1,14 @@
+[phases.setup]
+nixPkgs = ['nodejs_20', 'pnpm']
+
+[phases.install]
+cmds = ['pnpm install --frozen-lockfile']
+
+[phases.build]
+cmds = [
+  'pnpm --filter=@geo-analyzer/web exec prisma generate',
+  'pnpm turbo run build --filter=@geo-analyzer/worker...'
+]
+
+[start]
+cmd = 'cd apps/worker && node dist/index.js'
