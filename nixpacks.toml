@@ -3,7 +3,7 @@ nixPkgs = ['nodejs_20', 'pnpm']
 
 [phases.install]
 cmds = [
-  'pnpm install --frozen-lockfile --filter=@geo-analyzer/shared --filter=@geo-analyzer/worker'
+  'pnpm install --frozen-lockfile'
 ]
 
 [phases.build]
@@ -14,3 +14,7 @@ cmds = [
 
 [start]
 cmd = 'cd apps/worker && node dist/index.js'
+
+# Disable automatic framework detection
+[variables]
+NIXPACKS_NO_MUSL = '1'

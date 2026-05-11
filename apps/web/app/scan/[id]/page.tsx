@@ -121,7 +121,7 @@ export default function ScanResultsPage() {
   const {
     data: resultsData,
     isLoading: resultsLoading,
-    error: resultsError,
+    error: _resultsError,
   } = useQuery<ScanResult>({
     queryKey: ['scan-results', scanId],
     queryFn: async () => ky.get(`/api/scan/${scanId}`).json<ScanResult>(),
