@@ -1,15 +1,33 @@
 import express from 'express';
 import { Job } from 'bullmq';
-import { scanQueue } from './queues/scanQueue';
+
+let scanQueue: any = null;
+try {
+  ({ scanQueue } = require('./queues/scanQueue'));
+} catch (error) {
+  console.error('⚠ Failed to initialize queue:', error instanceof Error ? error.message : String(error));
+  console.log('Health check will work, but jobs cannot be enqueued');
+}
 
 const app = express();
 app.use(express.json());
 
 const PORT = process.env.PORT || 3001;
 
+// Health check endpoint - simple and doesn't depend on external services
+app.get('/health', (_req, res) => {
+  res.json({ status: 'ok' });
+});
+
 // POST /jobs/scan - Enqueue a new scan job
 app.post('/jobs/scan', async (req, res): Promise<void> => {
   try {
+    if (!scanQueue) {
+      console.error('[API] Queue not available');
+      res.status(503).json({ error: 'Queue service unavailable' });
+      return;
+    }
+
     const { scanId, brandName, url } = req.body;
 
     console.log(`[API] Received scan request:`, { scanId, brandName, url });
@@ -47,11 +65,6 @@ app.post('/jobs/scan', async (req, res): Promise<void> => {
     console.error('[API] Error enqueuing job:', error);
     res.status(500).json({ error: 'Failed to enqueue job', details: error instanceof Error ? error.message : String(error) });
   }
-});
-
-// Health check endpoint
-app.get('/health', (_req, res) => {
-  res.json({ status: 'ok' });
 });
 
 app.listen(PORT, () => {

@@ -32,16 +32,20 @@ console.log(`  Host: ${redis.host}`);
 console.log(`  Port: ${redis.port}`);
 console.log(`  Auth: ${redis.password ? 'yes' : 'no'}\n`);
 
-export const scanQueue = new Queue('scan', { connection: redis });
+let scanQueueInstance: Queue | null = null;
+let workerInstance: Worker | null = null;
 
-// Add queue error listeners
-scanQueue.on('error', (error) => {
-  console.error('Queue error:', error);
-});
+try {
+  scanQueueInstance = new Queue('scan', { connection: redis });
 
-// Unified worker that handles all job types
-const worker = new Worker(
-  'scan',
+  // Add queue error listeners
+  scanQueueInstance.on('error', (error) => {
+    console.error('Queue error:', error);
+  });
+
+  // Unified worker that handles all job types
+  workerInstance = new Worker(
+    'scan',
   async (job) => {
     const { scanId, brandName, url } = job.data;
 
@@ -363,30 +367,39 @@ Provide exactly 5 recommendations in JSON format like this (no other text):
   { connection: redis }
 );
 
-// Error handlers
-worker.on('error', (error) => {
-  console.error('Worker error:', error);
-});
-
-worker.on('failed', (job, error) => {
-  console.error(`Job ${job?.name} (${job?.id}) failed:`, error.message);
-});
-
-worker.on('completed', (job) => {
-  console.log(`Job ${job.name} (${job.id}) completed`);
-
-  // Chain to next job
-  if (job.name === 'crawl') {
-    console.log(`Enqueueing llm-query for scan ${job.data.scanId}`);
-    scanQueue.add('llm-query', job.data, {
-      attempts: 3,
-      backoff: { type: 'exponential', delay: 1000 },
+  // Error handlers
+  if (workerInstance) {
+    workerInstance.on('error', (error) => {
+      console.error('Worker error:', error);
     });
-  } else if (job.name === 'llm-query') {
-    console.log(`Enqueueing recommend for scan ${job.data.scanId}`);
-    scanQueue.add('recommend', job.data, {
-      attempts: 3,
-      backoff: { type: 'exponential', delay: 1000 },
+
+    workerInstance.on('failed', (job, error) => {
+      console.error(`Job ${job?.name} (${job?.id}) failed:`, error.message);
+    });
+
+    workerInstance.on('completed', (job) => {
+      console.log(`Job ${job.name} (${job.id}) completed`);
+
+      // Chain to next job
+      if (job.name === 'crawl') {
+        console.log(`Enqueueing llm-query for scan ${job.data.scanId}`);
+        scanQueueInstance?.add('llm-query', job.data, {
+          attempts: 3,
+          backoff: { type: 'exponential', delay: 1000 },
+        });
+      } else if (job.name === 'llm-query') {
+        console.log(`Enqueueing recommend for scan ${job.data.scanId}`);
+        scanQueueInstance?.add('recommend', job.data, {
+          attempts: 3,
+          backoff: { type: 'exponential', delay: 1000 },
+        });
+      }
     });
   }
-});
+
+  console.log('✓ Queue and worker initialized successfully');
+} catch (error) {
+  console.error('✗ Failed to initialize queue and worker:', error instanceof Error ? error.message : String(error));
+}
+
+export const scanQueue = scanQueueInstance;
