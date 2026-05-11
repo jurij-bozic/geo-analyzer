@@ -2,7 +2,9 @@
 nixPkgs = ['nodejs_20', 'pnpm']
 
 [phases.install]
-cmds = ['pnpm install --frozen-lockfile']
+cmds = [
+  'pnpm install --frozen-lockfile --filter=@geo-analyzer/shared --filter=@geo-analyzer/worker'
+]
 
 [phases.build]
 cmds = [
