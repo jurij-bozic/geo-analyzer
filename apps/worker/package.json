@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "prisma generate --schema=../web/prisma/schema.prisma && tsc --build",
+    "build": "rm -rf dist tsconfig.tsbuildinfo && prisma generate --schema=../web/prisma/schema.prisma && tsc --build",
     "start": "node dist/index.js",
     "type-check": "tsc --noEmit"
   },
