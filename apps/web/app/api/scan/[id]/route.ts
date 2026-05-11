@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { ScanResult } from '@geo-analyzer/shared';
+import { ScanResult, ScanStatus, LLMModel } from '@geo-analyzer/shared';
 
 export async function GET(
   _request: NextRequest,
@@ -30,7 +30,7 @@ export async function GET(
       id: scan.id,
       brandName: scan.brandName,
       url: scan.url,
-      status: scan.status as any,
+      status: scan.status as ScanStatus,
       crawledContent: scan.crawledTitle
         ? {
             title: scan.crawledTitle,
@@ -40,17 +40,29 @@ export async function GET(
             hasFAQSchema: scan.hasFAQSchema,
           }
         : null,
-      llmResults: scan.llmResults.map((result) => ({
+      llmResults: scan.llmResults.map((result: {
+        id: string;
+        model: string;
+        prompt: string;
+        response: string;
+        brandMentioned: boolean;
+        competitorsMentioned: string[];
+      }) => ({
         id: result.id,
-        model: result.model as any,
+        model: result.model as LLMModel,
         prompt: result.prompt,
         response: result.response,
         brandMentioned: result.brandMentioned,
         competitorsMentioned: result.competitorsMentioned,
       })),
-      recommendations: scan.recommendations.map((rec) => ({
+      recommendations: scan.recommendations.map((rec: {
+        id: string;
+        type: string;
+        title: string;
+        description: string;
+      }) => ({
         id: rec.id,
-        type: rec.type as any,
+        type: rec.type as 'content' | 'schema' | 'authority' | 'structure',
         title: rec.title,
         description: rec.description,
       })),
