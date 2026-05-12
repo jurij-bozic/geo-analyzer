@@ -3,7 +3,8 @@ nixPkgs = ['nodejs_20', 'pnpm']
 
 [phases.install]
 cmds = [
-  'pnpm install --frozen-lockfile --ignore-scripts'
+  'pnpm install --frozen-lockfile --ignore-scripts',
+  'pnpm exec prisma generate'
 ]
 
 [phases.build]
