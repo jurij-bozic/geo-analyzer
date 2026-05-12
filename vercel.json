@@ -1,4 +1,0 @@
-{
-  "buildCommand": "pnpm --filter=@geo-analyzer/web build",
-  "outputDirectory": "apps/web/.next"
-}
