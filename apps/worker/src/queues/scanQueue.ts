@@ -28,6 +28,7 @@ const redis = process.env.REDIS_URL
   : { host: 'localhost', port: 6379 };
 
 console.log(`\n✓ Redis Configuration:`);
+console.log(`  REDIS_URL env: ${process.env.REDIS_URL ? 'SET' : 'NOT SET'}`);
 console.log(`  Host: ${redis.host}`);
 console.log(`  Port: ${redis.port}`);
 console.log(`  Auth: ${redis.password ? 'yes' : 'no'}\n`);
