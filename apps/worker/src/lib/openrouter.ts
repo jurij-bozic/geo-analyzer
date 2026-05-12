@@ -1,14 +1,38 @@
-import OpenAI from 'openai';
+import ky from 'ky';
 
-export const openrouter = new OpenAI({
-  baseURL: 'https://openrouter.ai/api/v1',
-  apiKey: process.env.OPENROUTER_API_KEY,
-  defaultHeaders: {
-    'HTTP-Referer': 'https://geo-analyzer.vercel.app',
-    'X-Title': 'GEO Analyzer',
+export const openrouter = {
+  chat: {
+    completions: {
+      create: async (params: {
+        model: string;
+        messages: Array<{ role: string; content: string }>;
+        max_tokens?: number;
+        temperature?: number;
+      }) => {
+        if (!process.env.OPENROUTER_API_KEY) {
+          throw new Error('OPENROUTER_API_KEY environment variable is not set');
+        }
+
+        const response = await ky.post('https://openrouter.ai/api/v1/chat/completions', {
+          json: params,
+          headers: {
+            'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+            'HTTP-Referer': 'https://geo-analyzer.vercel.app',
+            'X-Title': 'GEO Analyzer',
+          },
+          timeout: 30 * 1000, // 30 seconds
+        }).json<{
+          choices: Array<{
+            message: {
+              content: string;
+            };
+          }>;
+        }>();
+        return response;
+      },
+    },
   },
-  timeout: 30 * 1000, // 30 seconds
-});
+};
 
 export const MODELS = {
   GPT4O: 'openai/gpt-4o',
