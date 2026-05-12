@@ -8,8 +8,8 @@ cmds = [
 
 [phases.build]
 cmds = [
-  'cd packages/shared && pnpm run build',
-  'cd apps/worker && pnpm run build'
+  'cd packages/shared && tsc --build',
+  'cd apps/worker && prisma generate --schema=../web/prisma/schema.prisma && tsc --build'
 ]
 
 [start]
